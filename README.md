@@ -14,17 +14,46 @@ python3 -m http.server 8000
 # → http://localhost:8000/
 ```
 
+## Deploy
+
+`./deploy.sh` ships the site to **both** hosts in one command:
+
+1. `python3 build.py` — bundles source into `dist/profile-card.html`
+2. `ruby …/publish.rb publish` — pushes the bundled HTML to **openclacky.com**
+3. `git push` — pushes source to GitHub → triggers **GitHub Pages** workflow
+   → deploys to `bluerangala.github.io/chen-heng`
+
+Flags:
+
+| Flag               | Effect                                |
+| ------------------ | ------------------------------------- |
+| `--message "msg"`  | Custom git commit message             |
+| `--skip-publish`   | Skip openclacky, only push to GitHub  |
+| `--skip-github`    | Skip git push, only publish to openclacky |
+| `--skip-build`     | Skip bundling (use existing dist/)    |
+
 ## Files
 
-| File          | Purpose                                                                |
-| ------------- | ---------------------------------------------------------------------- |
-| `index.html`  | Page structure & content. All copy lives here, with `data-i18n` keys. |
-| `style.css`   | All styles. CSS variables for theme (light/dark/system).               |
-| `script.js`   | i18n dictionary, theme toggle, clock, terminal typewriter.             |
+| File                          | Purpose                                              |
+| ----------------------------- | ---------------------------------------------------- |
+| `index.html`                  | Page structure & content (`data-i18n` keys).         |
+| `style.css`                   | All styles. CSS variables for theme.                 |
+| `script.js`                   | i18n dictionary, theme toggle, clock, terminal.      |
+| `build.py`                    | Inlines CSS/JS into `dist/profile-card.html`.        |
+| `deploy.sh`                   | One-command deploy to openclacky + GitHub.           |
+| `.github/workflows/pages.yml` | GitHub Pages deployment workflow.                    |
+| `.nojekyll`                   | Tells Pages to serve files as-is (no Jekyll).        |
+| `dist/`                       | Build output. Gitignored. Used only for openclacky.  |
+| `token.json`                  | OpenClacky update token. Gitignored.                 |
 
-Editing copy: change the `data-i18n` value in `index.html` (default language,
-zh-CN) AND the matching key in `script.js` (under `i18n['zh-CN']`). Repeat for
-`zh-TW` and `en` to keep all three languages in sync.
+Editing copy: change the `data-i18n` value in `index.html` (default zh-CN) AND
+the matching key in `script.js` (`i18n['zh-CN']`). Repeat for `zh-TW` and
+`en` to keep all three languages in sync. Then run `./deploy.sh`.
+
+## Hosts
+
+- **openclacky.com**: https://www.openclacky.com/~chen-heng (managed by OpenClacky)
+- **github.io**:     https://bluerangala.github.io/chen-heng (managed by GitHub Actions)
 
 ## Design notes
 
