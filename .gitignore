@@ -1,5 +1,6 @@
-# Build artifacts (bundled for OpenClacky publish only — never committed)
+# Build artifacts (bundled for OpenClacky publish + GitHub Pages, regenerated each deploy)
 dist/
+docs/
 profile-card.html
 
 # Local secrets (publish tokens, etc.)

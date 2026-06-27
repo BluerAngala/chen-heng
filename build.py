@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
 build.py — Bundle index.html + style.css + script.js into one self-contained
-HTML file at dist/profile-card.html for OpenClacky publishing.
-
-The GitHub Pages deployment uses the source files directly; this bundle is
-only needed because openclacky.com's publish API accepts a single HTML.
+HTML file. Used for BOTH OpenClacky (dist/profile-card.html) and GitHub Pages
+(docs/index.html) so both hosts render identically and never see partial-load
+issues from relative <link>/<script> paths.
 """
 from __future__ import annotations
 
@@ -15,10 +14,15 @@ ROOT = Path(__file__).resolve().parent
 INDEX = ROOT / "index.html"
 CSS = ROOT / "style.css"
 JS = ROOT / "script.js"
-OUT = ROOT / "dist" / "profile-card.html"
+
+# OpenClacky single-HTML upload target (consumed by publish.rb).
+OPENCLACKY_OUT = ROOT / "dist" / "profile-card.html"
+
+# GitHub Pages source folder. Pages workflow uploads ./docs.
+GITHUB_OUT = ROOT / "docs" / "index.html"
 
 
-def bundle() -> Path:
+def bundle() -> tuple[Path, Path]:
     if not INDEX.exists() or not CSS.exists() or not JS.exists():
         raise SystemExit("missing source file(s) — need index.html, style.css, script.js")
 
@@ -46,12 +50,18 @@ def bundle() -> Path:
     if n != 1:
         raise SystemExit("could not find <script src=\"script.js\"> to inline")
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(html, encoding="utf-8")
-    return OUT
+    OPENCLACKY_OUT.parent.mkdir(parents=True, exist_ok=True)
+    OPENCLACKY_OUT.write_text(html, encoding="utf-8")
+
+    GITHUB_OUT.parent.mkdir(parents=True, exist_ok=True)
+    GITHUB_OUT.write_text(html, encoding="utf-8")
+
+    return OPENCLACKY_OUT, GITHUB_OUT
 
 
 if __name__ == "__main__":
-    out = bundle()
-    size_kb = out.stat().st_size / 1024
-    print(f"✓ bundled → {out.relative_to(ROOT)} ({size_kb:.1f} KB)")
+    openclacky_out, github_out = bundle()
+    print(f"✓ openclacky → {openclacky_out.relative_to(ROOT)} "
+          f"({openclacky_out.stat().st_size / 1024:.1f} KB)")
+    print(f"✓ github.io  → {github_out.relative_to(ROOT)} "
+          f"({github_out.stat().st_size / 1024:.1f} KB)")
