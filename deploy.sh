@@ -27,6 +27,7 @@ for arg in "$@"; do
     --skip-publish) SKIP_PUBLISH=1 ;;
     --skip-github)  SKIP_GITHUB=1 ;;
     --skip-build)   SKIP_BUILD=1 ;;
+    --create-slug)  rm -f token.json ;;  # explicit onboarding: POST a new card
     -h|--help)
       grep '^# ' "$0" | sed 's/^# //'
       exit 0 ;;
@@ -50,7 +51,14 @@ if [ "$SKIP_PUBLISH" -eq 0 ]; then
     echo "❌ $BUNDLED missing — run without --skip-build first" >&2
     exit 1
   fi
-  echo "▸ publishing to openclacky.com…"
+  # Token file MUST exist; otherwise publish.rb creates a new orphan slug.
+  # If you need to onboard a new slug intentionally, pass --create-slug.
+  if [ ! -f "token.json" ]; then
+    echo "❌ token.json missing. Refusing to publish — would create a new orphan slug." >&2
+    echo "   Restore from a backup, or run with --create-slug to intentionally start fresh." >&2
+    exit 1
+  fi
+  echo "▸ publishing to openclacky.com (slug=$(grep -o '"slug":"[^"]*"' token.json | cut -d'"' -f4))…"
   ruby "$PUBLISH_RB" publish \
     --name "Chen Heng" \
     --html-file "$BUNDLED"
