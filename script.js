@@ -1,10 +1,3 @@
-window.__errs=[];
-window.addEventListener('error',e=>{
-window.__errs.push({msg:e.message,line:e.lineno,col:e.colno,stack:e.error&&e.error.stack});
-});
-window.addEventListener('unhandledrejection',e=>{
-window.__errs.push({msg:'UnhandledRejection: '+(e.reason&&e.reason.message?e.reason.message:e.reason),stack:e.reason&&e.reason.stack});
-});
 const i18n = {
 'zh-CN':{
 'brand.name':'陈恒','brand.role':'Attorney · Independent Developer',
@@ -253,7 +246,6 @@ termEl.innerHTML='';
 let currentLang='zh-CN';
 const termEl=document.getElementById('term');
 if(termEl) runTerminal(termEl);
-window.__phase='after-runTerminal';
 
 // Initialize
 const savedLang=(()=>{try{return localStorage.getItem('lang');}catch(e){return null;}})();
@@ -261,7 +253,6 @@ const savedTheme=(()=>{try{return localStorage.getItem('theme');}catch(e){return
 currentLang=(savedLang&&i18n[savedLang])?savedLang:'zh-CN';
 applyLang(currentLang);
 applyTheme(savedTheme==='dark'||savedTheme==='light'||savedTheme==='system'?savedTheme:'system');
-window.__phase='after-applyTheme';
 
 // React to OS theme changes when in system mode
 if(window.matchMedia){
@@ -287,7 +278,6 @@ item.classList.toggle('active',href===id);
 });
 },{rootMargin:'-40% 0px -55% 0px',threshold:0});
 document.querySelectorAll('.section').forEach(s=>observer.observe(s));
-window.__phase='after-section-observer';
 
 // Section reveal on scroll
 // Anything already in viewport on page load gets revealed immediately —
@@ -309,8 +299,6 @@ el.classList.add('in');
 revealObserver.observe(el);
 }
 });
-window.__phase='after-reveal-foreach';
-
 // Bind toggles
 document.querySelectorAll('.lang-group .toggle').forEach(b=>{
 b.addEventListener('click',()=>{

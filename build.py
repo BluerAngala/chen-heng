@@ -41,9 +41,13 @@ def bundle() -> tuple[Path, Path]:
         raise SystemExit("could not find <link href=\"style.css\"> to inline")
 
     # Inline script: <script src="script.js"></script>
+    # NOTE: must use a callable replacement, not a plain string.
+    # re.sub interprets backslash escapes (e.g. \n, \t) in string
+    # replacements — so the literal JS source `'\\n'` (backslash + n)
+    # would silently become a real newline, breaking string literals.
     html, n = re.subn(
         r'<script[^>]+src=["\']script\.js["\'][^>]*>\s*</script>',
-        f"<script>\n{js}\n</script>",
+        lambda _m: f"<script>\n{js}\n</script>",
         html,
         count=1,
     )
