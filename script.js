@@ -280,12 +280,25 @@ item.classList.toggle('active',href===id);
 document.querySelectorAll('.section').forEach(s=>observer.observe(s));
 
 // Section reveal on scroll
+// Anything already in viewport on page load gets revealed immediately —
+// hero is the most important, never hide it behind a scroll trigger that
+// might be delayed or unsupported in some embedding contexts.
 const revealObserver=new IntersectionObserver(entries=>{
 entries.forEach(entry=>{
-if(entry.isIntersecting) entry.target.classList.add('in');
+if(entry.isIntersecting){
+entry.target.classList.add('in');
+revealObserver.unobserve(entry.target);
+}
 });
-},{threshold:0.1});
-document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>{
+const r=el.getBoundingClientRect();
+if(r.top<window.innerHeight&&r.bottom>0){
+el.classList.add('in');
+}else{
+revealObserver.observe(el);
+}
+});
 
 // Bind toggles
 document.querySelectorAll('.lang-group .toggle').forEach(b=>{
